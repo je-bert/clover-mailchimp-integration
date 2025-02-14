@@ -1,0 +1,57 @@
+{
+  "appId": "RJJ0ZGZZHK8SJ",
+  "merchants": {
+    "AT772J8NE4X31": [
+      {
+        "objectId": "C:THSZHD0QXY56A",
+        "type": "UPDATE",
+        "ts": 1739569338837,
+        "object": {
+          "achs": [],
+          "addresses": [
+            {
+              "address1": "3 rue test",
+              "address2": "Line 2",
+              "address3": "Line 3",
+              "city": "Levis",
+              "country": "CA",
+              "state": "Qc",
+              "zip": "G6V1F5",
+              "id": "BNHMCN6KE1E6M"
+            }
+          ],
+          "cards": [],
+          "customerSince": 1739564975000,
+          "emailAddresses": [
+            {
+              "emailAddress": "jbertrand@carboniaweb.com",
+              "primaryEmail": false,
+              "id": "Q03VA8W94N560"
+            }
+          ],
+          "firstName": "John",
+          "lastName": "Doe",
+          "marketingAllowed": false,
+          "merchant": {
+            "enterprises": [],
+            "id": "AT772J8NE4X31"
+          },
+          "metadata": {
+            "businessName": "Tets bussineess name",
+            "dobDay": 13,
+            "dobMonth": 9,
+            "note": "Lorem ipsum"
+          },
+          "orders": [],
+          "phoneNumbers": [
+            {
+              "phoneNumber": "+14188888888",
+              "id": "5X342NX3FTADR"
+            }
+          ],
+          "id": "THSZHD0QXY56A"
+        }
+      }
+    ]
+  }
+}
