@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
-import { Request } from 'express';
 
 @Injectable()
 export class AppService {
@@ -15,7 +14,7 @@ export class AppService {
     private readonly httpService: HttpService,
   ) {}
 
-  async handleCloverWebhook(req: Request) {
+  async handleCloverWebhook(req: any, res: any) {
     const cloverAuth = req.headers['x-clover-auth']; // Get the auth header
     if (
       !cloverAuth ||
@@ -24,7 +23,8 @@ export class AppService {
       console.log(req.body);
       console.warn('Unauthorized Clover Webhook received');
       // allow for clover initial webhook verification
-      return { message: 'Unauthorized' };
+      // Allow for Clover initial webhook verification
+    return res.status(200).json({ success: true });
     }
 
     const event = req.body;
