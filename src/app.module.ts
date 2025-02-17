@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { WebhooksController } from './webhooks/webhooks.controller';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 
@@ -12,7 +11,7 @@ import { HttpModule } from '@nestjs/axios';
     }),
     HttpModule,
   ],
-  controllers: [AppController, WebhooksController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
