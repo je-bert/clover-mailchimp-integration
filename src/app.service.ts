@@ -21,8 +21,10 @@ export class AppService {
       !cloverAuth ||
       cloverAuth !== this.configService.get<string>('CLOVER_AUTH_SECRET')
     ) {
+      console.log(req.body);
       console.warn('Unauthorized Clover Webhook received');
-      throw new UnauthorizedException('Invalid webhook authentication');
+      // allow for clover initial webhook verification
+      return { message: 'Unauthorized' };
     }
 
     const event = req.body;
