@@ -1,43 +1,26 @@
 # Base image
-FROM node:20-alpine As development
+FROM node:20-alpine As base
 
-# Create app directory
-WORKDIR /usr/src/app
+RUN npm i -g pnpm
 
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
-# Copying this first prevents re-running npm install on every code change.
-COPY package*.json ./
+FROM base AS dependencies
 
-# Install app dependencies
-RUN npm install
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
 
-# Bundle app source
+FROM base AS build
+
+WORKDIR /app
 COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+RUN pnpm build
+RUN pnpm prune --prod
 
-# Creates a "dist" folder with the production build
-RUN npm run build
+FROM base AS deploy
 
-# Base image for production
-FROM node:20-alpine As production
+WORKDIR /app
+COPY --from=build /app/dist/ ./dist/
+COPY --from=build /app/node_modules ./node_modules
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
-# Copying this first prevents re-running npm install on every code change.
-COPY package*.json ./
-
-# Install production dependencies.
-# If you have a package-lock.json, speedier builds with 'npm ci', otherwise use 'npm install --only=production'
-RUN npm ci --only=production && npm cache clean --force
-
-# Bundle app source
-COPY . .
-
-# Copy the bundled code
-COPY --from=development /usr/src/app/dist ./dist
-
-# Start the server using the production build
-CMD ["npm", "run", "start:prod"]
+CMD [ "node", "dist/main.js" ]
