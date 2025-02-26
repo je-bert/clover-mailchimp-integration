@@ -1,10 +1,7 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { count } from 'console';
 import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -24,7 +21,7 @@ export class AppService {
       console.warn('Unauthorized Clover Webhook received');
       // allow for clover initial webhook verification
       // Allow for Clover initial webhook verification
-    return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true });
     }
 
     const event = req.body;
@@ -54,6 +51,14 @@ export class AppService {
 
     const emails = customerData?.emailAddresses?.map((e) => e.emailAddress);
     const phoneNumbers = customerData?.phoneNumbers?.map((p) => p.phoneNumber);
+    const addresses = customerData?.addresses.map((a) => ({
+      addr1: a?.address1 || '',
+      city: a?.city || '',
+      state: a?.state || '',
+      zip: a?.zip || '',
+      country: a?.country || undefined,
+      addr2: a?.address2 || undefined,
+    }));
 
     if (emails.length > 0) {
       const email = emails[0];
@@ -67,29 +72,35 @@ export class AppService {
       // }));
 
       const payload = {
-        contact: {
-          email,
-          firstName: firstName || undefined,
-          lastName: lastName || undefined,
-          phone: phoneNumbers?.[0] || undefined,
-          // fieldValues: fieldValues.length > 0 ? fieldValues : undefined,
-        },
+        members: [
+          {
+            email_address: email,
+            status: 'subscribed',
+            merge_fields: {
+              FNAME: firstName || '',
+              LNAME: lastName || '',
+              PHONE: phoneNumbers.length > 0 ? phoneNumbers[0] : '',
+              ADDRESS: addresses.length > 0 ? addresses[0] : '',
+            },
+            tags: ['Clover'],
+          },
+        ],
+        update_existing: true, // Ensures existing contacts are updated
       };
+
+      const url = `https://${this.configService.get<string>('MAIL_CHIMP_DC')}.api.mailchimp.com/3.0/lists/${this.configService.get<string>('MAIL_CHIMP_AUDIENCE_ID')}`;
 
       // https://developers.activecampaign.com/reference/sync-a-contacts-data
       const { data } = await firstValueFrom(
         this.httpService
-          .post(
-            `${this.configService.get<string>('ACTIVE_CAMPAIGN_API_URL')}/api/3/contact/sync`,
-            payload,
-            {
-              headers: {
-                'Api-Token': this.configService.get<string>(
-                  'ACTIVE_CAMPAIGN_API_KEY',
-                ),
-              },
+          .post(url, payload, {
+            headers: {
+              Authorization: `Bearer ${this.configService.get<string>(
+                'MAIL_CHIMP_API_KEY',
+              )}`,
+              'Content-Type': 'application/json',
             },
-          )
+          })
           .pipe(
             catchError((err) => {
               console.error('Failed to sync contact:', err);
@@ -101,6 +112,6 @@ export class AppService {
       console.log(data);
     }
 
-    return { success: true };
+    return res.status(200).json({ success: true });
   }
 }
