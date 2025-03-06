@@ -12,10 +12,9 @@ export class AppService {
   ) {}
 
   async handleCloverAuth(req: any, res: any) {
-    const cloverAuth = req.headers['x-clover-auth']; // Get the auth header
     if (
-      !cloverAuth ||
-      cloverAuth !== this.configService.get<string>('CLOVER_AUTH_SECRET')
+      req.query?.['merchant_id'] !==
+      this.configService.get<string>('CLOVER_MERCHANT_ID')
     ) {
       console.warn('Unauthorized Clover Auth request');
       return res.status(401).send('Unauthorized');
