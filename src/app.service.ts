@@ -11,6 +11,18 @@ export class AppService {
     private readonly httpService: HttpService,
   ) {}
 
+  async handleCloverAuth(req: any, res: any) {
+    const cloverAuth = req.headers['x-clover-auth']; // Get the auth header
+    if (
+      !cloverAuth ||
+      cloverAuth !== this.configService.get<string>('CLOVER_AUTH_SECRET')
+    ) {
+      console.warn('Unauthorized Clover Auth request');
+      return res.status(401).send('Unauthorized');
+    }
+    return res.status(200).send('Authorized');
+  }
+
   async handleCloverWebhook(req: any, res: any) {
     const cloverAuth = req.headers['x-clover-auth']; // Get the auth header
     if (
